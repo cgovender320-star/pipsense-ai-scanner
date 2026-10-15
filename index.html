@@ -1,312 +1,263 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080d18">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080d18">
 
-  <title>PipSense AI Scanner</title>
+<title>PipSense AI Scanner</title>
 
-  <script src="https://unpkg.com/lightweight-charts@4.2.2/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://unpkg.com/lightweight-charts@4.2.2/dist/lightweight-charts.standalone.production.js"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+*{box-sizing:border-box}
 
-    body {
-      margin: 0;
-      background: #080d18;
-      color: #edf2ff;
-      font-family: Arial, sans-serif;
-    }
+body{
+  margin:0;
+  background:#080d18;
+  color:#edf2ff;
+  font-family:Arial,sans-serif
+}
 
-    header {
-      padding: 20px;
-      background: #111a2c;
-      border-bottom: 1px solid #26344d;
-    }
+header{
+  padding:20px;
+  background:#111a2c;
+  border-bottom:1px solid #26344d
+}
 
-    header h1 {
-      margin: 0;
-      color: #36d6a0;
-      font-size: 25px;
-    }
+header h1{
+  margin:0;
+  color:#36d6a0;
+  font-size:25px
+}
 
-    header p {
-      margin-bottom: 0;
-      color: #aab8d0;
-      font-size: 13px;
-    }
+header p{
+  margin-bottom:0;
+  color:#aab8d0;
+  font-size:13px
+}
 
-    main {
-      max-width: 1100px;
-      margin: auto;
-      padding: 15px;
-    }
+main{
+  max-width:1100px;
+  margin:auto;
+  padding:15px
+}
 
-    .panel {
-      background: #111a2c;
-      border: 1px solid #26344d;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 15px;
-    }
+.panel{
+  background:#111a2c;
+  border:1px solid #26344d;
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:15px;
+  min-width:0
+}
 
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px
+}
 
-    select,
-    button {
-      padding: 12px;
-      border-radius: 7px;
-      border: 1px solid #35445f;
-      background: #19263c;
-      color: white;
-      font-size: 14px;
-    }
+select,button{
+  padding:12px;
+  border-radius:7px;
+  border:1px solid #35445f;
+  background:#19263c;
+  color:white;
+  font-size:14px
+}
 
-    button {
-      background: #087f62;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
+button{
+  background:#087f62;
+  border:none;
+  cursor:pointer;
+  font-weight:bold
+}
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: wait;
-    }
+button:disabled{
+  opacity:.6;
+  cursor:wait
+}
 
-    .status {
-      color: #ffca68;
-      font-size: 12px;
-      line-height: 1.6;
-      margin-top: 12px;
-      overflow-wrap: anywhere;
-    }
+.status{
+  color:#ffca68;
+  font-size:12px;
+  line-height:1.6;
+  margin-top:12px;
+  overflow-wrap:anywhere
+}
 
-    #chart {
-      height: 350px;
-      width: 100%;
-    }
+.status.ok{color:#36d6a0}
+.status.error{color:#ff737d}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-    }
+#chart{
+  height:350px;
+  width:100%
+}
 
-    .label {
-      color: #9baac3;
-      font-size: 12px;
-    }
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px
+}
 
-    .value {
-      margin-top: 8px;
-      font-size: 19px;
-      font-weight: bold;
-      overflow-wrap: anywhere;
-    }
+.label{
+  color:#9baac3;
+  font-size:12px
+}
 
-    .green {
-      color: #36d6a0;
-    }
+.value{
+  margin-top:8px;
+  font-size:19px;
+  font-weight:bold;
+  overflow-wrap:anywhere
+}
 
-    .red {
-      color: #ff737d;
-    }
+.green{color:#36d6a0}
+.red{color:#ff737d}
 
-    h2 {
-      font-size: 17px;
-      margin-top: 0;
-    }
+h2{
+  font-size:17px;
+  margin-top:0
+}
 
-    .small {
-      font-size: 12px;
-      color: #9baac3;
-      line-height: 1.7;
-    }
+.small{
+  font-size:12px;
+  color:#9baac3;
+  line-height:1.7
+}
 
-    footer {
-      text-align: center;
-      color: #7788a5;
-      font-size: 12px;
-      padding: 20px;
-    }
+footer{
+  text-align:center;
+  color:#7788a5;
+  font-size:12px;
+  padding:20px
+}
 
-    @media (max-width: 500px) {
-      #chart {
-        height: 300px;
-      }
-
-      header h1 {
-        font-size: 22px;
-      }
-
-      main {
-        padding: 10px;
-      }
-
-      select,
-      button {
-        flex: 1;
-      }
-    }
-  </style>
+@media(max-width:500px){
+  #chart{height:300px}
+  header h1{font-size:22px}
+  main{padding:10px}
+  select,button{flex:1;min-width:0}
+}
+</style>
 </head>
 
 <body>
 
 <header>
   <h1>⚡ PipSense AI</h1>
-  <p>Forex & Gold Market Scanner</p>
+  <p>Forex &amp; Gold Market Scanner</p>
 </header>
 
 <main>
 
-  <section class="panel">
-    <h2>Market Scanner</h2>
+<section class="panel">
+  <h2>Market Scanner</h2>
 
-    <div class="controls">
-      <select id="symbol" aria-label="Market">
-        <option value="XAUUSD">XAU/USD — Gold</option>
-        <option value="EURUSD">EUR/USD</option>
-        <option value="GBPUSD">GBP/USD</option>
-        <option value="USDJPY">USD/JPY</option>
-      </select>
+  <div class="controls">
+    <select id="symbol" aria-label="Market">
+      <option value="XAUUSD">XAU/USD — Gold</option>
+      <option value="EURUSD">EUR/USD</option>
+      <option value="GBPUSD">GBP/USD</option>
+      <option value="USDJPY">USD/JPY</option>
+    </select>
 
-      <select id="timeframe" aria-label="Timeframe">
-        <option value="5">5 Minute</option>
-        <option value="15" selected>15 Minute</option>
-        <option value="60">1 Hour</option>
-        <option value="240">4 Hour</option>
-      </select>
+    <select id="timeframe" aria-label="Timeframe">
+      <option value="5">5 Minute</option>
+      <option value="15" selected>15 Minute</option>
+      <option value="60">1 Hour</option>
+      <option value="240">4 Hour</option>
+    </select>
 
-      <button id="scanButton">Scan Market</button>
-    </div>
+    <button id="scanButton" type="button">Scan Market</button>
+  </div>
 
-    <div class="status" id="dataStatus" role="status" aria-live="polite">
-      Connecting to market data...
-    </div>
+  <div class="status" id="dataStatus" role="status" aria-live="polite">
+    Connecting to market data...
+  </div>
 
-    <div class="small" id="updatedAt"></div>
-  </section>
+  <div class="small" id="updatedAt">No successful update yet.</div>
+</section>
 
-  <section class="panel">
-    <h2 id="chartTitle">Candlestick Chart</h2>
-    <div id="chart"></div>
-    <p class="small">
-      Prices are supplied by Twelve Data. Availability, delay and
-      symbol coverage depend on your provider plan. Verify prices
-      against your broker before trading.
-    </p>
-  </section>
+<section class="panel">
+  <h2 id="chartTitle">Candlestick Chart</h2>
+  <div id="chart"></div>
+  <p class="small">
+    Market data is provided through your configured Cloudflare Worker.
+    Prices may be delayed. Verify all prices with your broker.
+  </p>
+</section>
 
-  <section class="grid">
+<section class="grid">
 
-    <div class="panel">
-      <div class="label">Experimental Market Bias</div>
-      <div class="value" id="bias">--</div>
-    </div>
+  <div class="panel">
+    <div class="label">Experimental Market Bias</div>
+    <div class="value" id="bias">--</div>
+  </div>
 
-    <div class="panel">
-      <div class="label">Structure Check</div>
-      <div class="value" id="bos">--</div>
-    </div>
+  <div class="panel">
+    <div class="label">Structure Check</div>
+    <div class="value" id="bos">--</div>
+  </div>
 
-    <div class="panel">
-      <div class="label">Possible Liquidity Sweep</div>
-      <div class="value" id="sweep">--</div>
-    </div>
+  <div class="panel">
+    <div class="label">Possible Liquidity Sweep</div>
+    <div class="value" id="sweep">--</div>
+  </div>
 
-    <div class="panel">
-      <div class="label">Latest Candle Close</div>
-      <div class="value" id="price">--</div>
-    </div>
+  <div class="panel">
+    <div class="label">Latest Candle Close</div>
+    <div class="value" id="price">--</div>
+  </div>
 
-  </section>
+</section>
 
-  <section class="panel">
-    <h2>Experimental Trade Setup</h2>
+<section class="panel">
+  <h2>Experimental Trade Setup</h2>
 
-    <div class="grid">
-      <div>
-        <div class="label">Signal</div>
-        <div class="value" id="signal">WAIT</div>
-      </div>
+  <div class="grid">
+    <div><div class="label">Signal</div><div class="value" id="signal">WAIT</div></div>
+    <div><div class="label">Reference Entry</div><div class="value" id="entry">--</div></div>
+    <div><div class="label">Stop Loss</div><div class="value red" id="sl">--</div></div>
+    <div><div class="label">Take Profit 1</div><div class="value green" id="tp1">--</div></div>
+    <div><div class="label">Take Profit 2</div><div class="value green" id="tp2">--</div></div>
+    <div><div class="label">Risk/Reward</div><div class="value" id="rr">--</div></div>
+  </div>
 
-      <div>
-        <div class="label">Reference Entry</div>
-        <div class="value" id="entry">--</div>
-      </div>
+  <p class="small" id="explanation">Waiting for valid candle data.</p>
+</section>
 
-      <div>
-        <div class="label">Stop Loss</div>
-        <div class="value red" id="sl">--</div>
-      </div>
+<section class="panel">
+  <h2>Analysis Checklist</h2>
+  <p id="checklist" class="small">Waiting for market data.</p>
+</section>
 
-      <div>
-        <div class="label">Take Profit 1</div>
-        <div class="value green" id="tp1">--</div>
-      </div>
-
-      <div>
-        <div class="label">Take Profit 2</div>
-        <div class="value green" id="tp2">--</div>
-      </div>
-
-      <div>
-        <div class="label">Risk/Reward</div>
-        <div class="value" id="rr">--</div>
-      </div>
-    </div>
-
-    <p class="small" id="explanation">
-      Waiting for candle data.
-    </p>
-  </section>
-
-  <section class="panel">
-    <h2>Analysis Checklist</h2>
-    <p id="checklist" class="small">
-      Waiting for market data.
-    </p>
-  </section>
-
-  <section class="panel">
-    <h2>Important Risk Notice</h2>
-    <p class="small">
-      This scanner is experimental and does not place trades.
-      Breakout checks are not a validated ICT/SMC strategy.
-      No signal guarantees a profitable outcome. Do not use these
-      reference levels for live trading without independent
-      verification and testing.
-    </p>
-  </section>
+<section class="panel">
+  <h2>Important Risk Notice</h2>
+  <p class="small">
+    This experimental scanner does not place trades.
+    Its breakout and liquidity checks are simplified and are not a
+    validated ICT/SMC strategy. Signals and reference levels are not
+    financial advice. Test independently before considering live trading.
+  </p>
+</section>
 
 </main>
 
-<footer>
-  PipSense AI Scanner • Version 2.0
-</footer>
+<footer>PipSense AI Scanner • Version 2.1</footer>
 
 <script>
 "use strict";
 
 /*
- * Public Cloudflare Worker URL.
- * The Twelve Data API key must remain stored as a Cloudflare secret.
+ * Existing Worker address retained.
+ * Keep all API keys in Cloudflare Worker secrets.
  */
 const API_BASE =
   "https://sweet-limit-6236pipsense-market-api.cgovender320.workers.dev";
 
-/*
- * Exact symbol mapping avoids malformed symbols such as XAU//USD.
- */
 const SYMBOL_MAP = {
   XAUUSD: "XAU/USD",
   EURUSD: "EUR/USD",
@@ -325,83 +276,95 @@ const chartElement = document.getElementById("chart");
 const statusElement = document.getElementById("dataStatus");
 const scanButton = document.getElementById("scanButton");
 
-const chart = LightweightCharts.createChart(chartElement, {
-  width: chartElement.clientWidth,
-  height: chartElement.clientHeight,
-
-  layout: {
-    background: { color: "#111a2c" },
-    textColor: "#d5def0"
-  },
-
-  grid: {
-    vertLines: { color: "#202c42" },
-    horzLines: { color: "#202c42" }
-  },
-
-  rightPriceScale: {
-    borderColor: "#35445f"
-  },
-
-  timeScale: {
-    borderColor: "#35445f",
-    timeVisible: true,
-    secondsVisible: false
-  },
-
-  crosshair: {
-    mode: LightweightCharts.CrosshairMode.Normal
-  }
-});
-
-const candleSeries = chart.addCandlestickSeries({
-  upColor: "#36d6a0",
-  downColor: "#ff737d",
-  borderUpColor: "#36d6a0",
-  borderDownColor: "#ff737d",
-  wickUpColor: "#36d6a0",
-  wickDownColor: "#ff737d"
-});
-
+let chart = null;
+let candleSeries = null;
 let candleData = [];
 let requestInProgress = false;
-let lastSuccessfulUpdate = null;
 let refreshTimer = null;
+let lastSuccessfulUpdate = null;
+let requestController = null;
 
-function getPrecision(symbol) {
-  if (symbol === "XAUUSD") return 2;
-  if (symbol === "USDJPY") return 3;
-  return 5;
+function setText(id, value) {
+  document.getElementById(id).textContent = value;
 }
 
-function formatPrice(value, symbol) {
-  if (!Number.isFinite(value)) return "--";
-  return value.toFixed(getPrecision(symbol));
-}
-
-function setText(id, text) {
-  document.getElementById(id).textContent = text;
-}
-
-function setValueClass(id, text, color) {
+function setValueClass(id, value, color) {
   const element = document.getElementById(id);
-  element.textContent = text;
+  element.textContent = value;
   element.className = "value" + (color ? " " + color : "");
 }
 
+function setStatus(message, type = "") {
+  statusElement.textContent = message;
+  statusElement.className = "status" + (type ? " " + type : "");
+}
+
+function getPrecision(code) {
+  if (code === "XAUUSD") return 2;
+  if (code === "USDJPY") return 3;
+  return 5;
+}
+
+function formatPrice(value, code) {
+  if (!Number.isFinite(value)) return "--";
+  return value.toFixed(getPrecision(code));
+}
+
 function clearAnalysis(message) {
-  setValueClass("bias", "--", "");
-  setValueClass("bos", "--", "");
-  setValueClass("sweep", "--", "");
-  setValueClass("price", "--", "");
+  ["bias", "bos", "sweep", "price"].forEach(id =>
+    setValueClass(id, "--", "")
+  );
+
   setValueClass("signal", "WAIT", "");
-  setText("entry", "--");
-  setText("sl", "--");
-  setText("tp1", "--");
-  setText("tp2", "--");
-  setText("rr", "--");
+
+  ["entry", "sl", "tp1", "tp2", "rr"].forEach(id =>
+    setText(id, "--")
+  );
+
   setText("explanation", message);
   setText("checklist", "Analysis unavailable until valid candle data is received.");
+}
+
+function initialiseChart() {
+  if (!window.LightweightCharts) {
+    throw new Error("Chart library failed to load. Check your internet connection.");
+  }
+
+  chart = LightweightCharts.createChart(chartElement, {
+    width: chartElement.clientWidth || 600,
+    height: chartElement.clientHeight || 350,
+
+    layout: {
+      background: { color: "#111a2c" },
+      textColor: "#d5def0"
+    },
+
+    grid: {
+      vertLines: { color: "#202c42" },
+      horzLines: { color: "#202c42" }
+    },
+
+    rightPriceScale: { borderColor: "#35445f" },
+
+    timeScale: {
+      borderColor: "#35445f",
+      timeVisible: true,
+      secondsVisible: false
+    },
+
+    crosshair: {
+      mode: LightweightCharts.CrosshairMode.Normal
+    }
+  });
+
+  candleSeries = chart.addCandlestickSeries({
+    upColor: "#36d6a0",
+    downColor: "#ff737d",
+    borderUpColor: "#36d6a0",
+    borderDownColor: "#ff737d",
+    wickUpColor: "#36d6a0",
+    wickDownColor: "#ff737d"
+  });
 }
 
 async function requestCandles(symbol, interval) {
@@ -410,222 +373,210 @@ async function requestCandles(symbol, interval) {
   url.searchParams.set("symbol", symbol);
   url.searchParams.set("interval", interval);
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
+  requestController = new AbortController();
+
+  const timeout = setTimeout(() => {
+    requestController.abort();
+  }, 20000);
 
   try {
     const response = await fetch(url.toString(), {
       method: "GET",
-      signal: controller.signal
+      signal: requestController.signal,
+      headers: { "Accept": "application/json" },
+      cache: "no-store"
     });
 
-    const payload = await response.json();
+    const bodyText = await response.text();
+    let payload;
 
-    if (!response.ok) {
+    try {
+      payload = JSON.parse(bodyText);
+    } catch {
       throw new Error(
-        payload.error ||
-        "Market API returned HTTP " + response.status
+        "Worker returned a non-JSON response. Check the Worker URL and deployment."
       );
     }
 
-    if (!Array.isArray(payload.candles) || payload.candles.length < 30) {
-      throw new Error("Not enough candles returned for analysis.");
+    if (!response.ok) {
+      throw new Error(
+        (payload && payload.error ? payload.error : "Market request failed") +
+        " (HTTP " + response.status + ")"
+      );
     }
 
-    const validCandles = payload.candles
-      .map(candle => ({
-        time: Number(candle.time),
-        open: Number(candle.open),
-        high: Number(candle.high),
-        low: Number(candle.low),
-        close: Number(candle.close)
+    if (!payload || !Array.isArray(payload.candles)) {
+      throw new Error(
+        "Worker response has no candles array. Check its /candles endpoint."
+      );
+    }
+
+    const parsed = payload.candles
+      .map(c => ({
+        time: Number(c.time),
+        open: Number(c.open),
+        high: Number(c.high),
+        low: Number(c.low),
+        close: Number(c.close)
       }))
-      .filter(candle =>
-        Number.isFinite(candle.time) &&
-        Number.isFinite(candle.open) &&
-        Number.isFinite(candle.high) &&
-        Number.isFinite(candle.low) &&
-        Number.isFinite(candle.close) &&
-        candle.high >= candle.low &&
-        candle.high >= Math.max(candle.open, candle.close) &&
-        candle.low <= Math.min(candle.open, candle.close)
+      .filter(c =>
+        Number.isFinite(c.time) &&
+        Number.isFinite(c.open) &&
+        Number.isFinite(c.high) &&
+        Number.isFinite(c.low) &&
+        Number.isFinite(c.close) &&
+        c.high >= c.low &&
+        c.high >= Math.max(c.open, c.close) &&
+        c.low <= Math.min(c.open, c.close)
       )
       .sort((a, b) => a.time - b.time);
 
     /*
-     * Lightweight Charts requires ascending, unique timestamps.
+     * Keep the last candle for any repeated timestamp.
      */
-    const uniqueCandles = [];
-    let previousTime = null;
+    const byTime = new Map();
 
-    for (const candle of validCandles) {
-      if (candle.time !== previousTime) {
-        uniqueCandles.push(candle);
-        previousTime = candle.time;
-      }
+    for (const candle of parsed) {
+      byTime.set(candle.time, candle);
     }
 
-    if (uniqueCandles.length < 30) {
-      throw new Error("Returned candle data failed validation.");
+    const candles = Array.from(byTime.values())
+      .sort((a, b) => a.time - b.time);
+
+    if (candles.length < 30) {
+      throw new Error(
+        "Only " + candles.length +
+        " valid candles received; at least 30 are needed."
+      );
     }
 
     return {
-      candles: uniqueCandles,
-      source: payload.source || "Market data provider",
-      lastUpdated: payload.lastUpdated || null
+      candles,
+      source: payload.source || "Configured market data provider"
     };
 
   } finally {
     clearTimeout(timeout);
+    requestController = null;
   }
 }
 
 function analyseMarket() {
-  const symbol = document.getElementById("symbol").value;
+  const code = document.getElementById("symbol").value;
   const data = candleData;
 
-  if (data.length < 30) {
-    clearAnalysis("At least 30 valid candles are required.");
+  if (data.length < 40) {
+    clearAnalysis("At least 40 valid candles are needed for this analysis.");
     return;
   }
 
   const last = data[data.length - 1];
-
-  /*
-   * Basic range-break analysis only.
-   * This does not implement complete ICT/SMC logic.
-   */
   const recent = data.slice(-20, -1);
-  const previous = data.slice(-40, -20);
+  const older = data.slice(-40, -20);
 
   const recentHigh = Math.max(...recent.map(c => c.high));
   const recentLow = Math.min(...recent.map(c => c.low));
-
-  const previousHigh = Math.max(...previous.map(c => c.high));
-  const previousLow = Math.min(...previous.map(c => c.low));
+  const olderHigh = Math.max(...older.map(c => c.high));
+  const olderLow = Math.min(...older.map(c => c.low));
 
   const bullishBreak = last.close > recentHigh;
   const bearishBreak = last.close < recentLow;
 
   let bias = "NEUTRAL";
 
-  if (last.close > previousHigh) {
-    bias = "BULLISH";
-  } else if (last.close < previousLow) {
-    bias = "BEARISH";
-  }
+  if (last.close > olderHigh) bias = "BULLISH";
+  if (last.close < olderLow) bias = "BEARISH";
 
   setValueClass(
-    "bias",
-    bias,
+    "bias", bias,
     bias === "BULLISH" ? "green" :
     bias === "BEARISH" ? "red" : ""
   );
 
   let structure = "No range break";
 
-  if (bullishBreak) {
-    structure = "Possible bullish break";
-  } else if (bearishBreak) {
-    structure = "Possible bearish break";
-  }
+  if (bullishBreak) structure = "Possible bullish break";
+  if (bearishBreak) structure = "Possible bearish break";
 
   setValueClass(
-    "bos",
-    structure,
+    "bos", structure,
     bullishBreak ? "green" : bearishBreak ? "red" : ""
   );
 
   /*
-   * A possible sweep requires a wick beyond a previous range
-   * followed by a close back inside that range.
+   * Sweep means a wick moves beyond a previous range and
+   * the candle closes back inside it.
    */
-  const sweptHigh =
-    last.high > recentHigh &&
-    last.close < recentHigh;
+  const sweptHigh = last.high > recentHigh && last.close < recentHigh;
+  const sweptLow = last.low < recentLow && last.close > recentLow;
 
-  const sweptLow =
-    last.low < recentLow &&
-    last.close > recentLow;
-
-  let sweep = "Not detected";
-
-  if (sweptHigh) {
-    sweep = "Possible high sweep";
-  } else if (sweptLow) {
-    sweep = "Possible low sweep";
-  }
+  const sweep = sweptHigh ? "Possible high sweep" :
+                sweptLow ? "Possible low sweep" : "Not detected";
 
   setValueClass(
-    "sweep",
-    sweep,
+    "sweep", sweep,
     sweptLow ? "green" : sweptHigh ? "red" : ""
   );
 
-  setText("price", formatPrice(last.close, symbol));
-
-  /*
-   * A reference setup is displayed only for a range breakout.
-   * It is not a trade recommendation.
-   */
-  const candleRange = last.high - last.low;
-
-  const minimumDistance =
-    symbol === "XAUUSD" ? 0.1 :
-    symbol === "USDJPY" ? 0.001 : 0.00001;
-
-  const riskDistance = Math.max(candleRange, minimumDistance);
+  setText("price", formatPrice(last.close, code));
 
   let signal = "WAIT";
   let entry = null;
-  let stopLoss = null;
-  let takeProfit1 = null;
-  let takeProfit2 = null;
+  let sl = null;
+  let tp1 = null;
+  let tp2 = null;
   let explanation =
-    "No breakout detected by this basic experimental rule.";
+    "No breakout detected. The scanner will wait for another setup.";
 
-  if (bullishBreak && !bearishBreak) {
-    signal = "POSSIBLE BUY SETUP";
+  if (bullishBreak !== bearishBreak) {
+    const distance = Math.max(
+      last.high - last.low,
+      code === "XAUUSD" ? 0.1 :
+      code === "USDJPY" ? 0.001 : 0.00001
+    );
+
     entry = last.close;
-    stopLoss = entry - riskDistance * 1.5;
-    takeProfit1 = entry + riskDistance * 1.5;
-    takeProfit2 = entry + riskDistance * 3;
 
-    explanation =
-      "The latest candle closed above the recent range. " +
-      "This is a basic breakout condition, not a validated entry.";
-  } else if (bearishBreak && !bullishBreak) {
-    signal = "POSSIBLE SELL SETUP";
-    entry = last.close;
-    stopLoss = entry + riskDistance * 1.5;
-    takeProfit1 = entry - riskDistance * 1.5;
-    takeProfit2 = entry - riskDistance * 3;
+    if (bullishBreak) {
+      signal = "POSSIBLE BUY SETUP";
+      sl = entry - distance * 1.5;
+      tp1 = entry + distance * 1.5;
+      tp2 = entry + distance * 3;
 
-    explanation =
-      "The latest candle closed below the recent range. " +
-      "This is a basic breakout condition, not a validated entry.";
+      explanation =
+        "The last candle closed above the previous 19-candle range. " +
+        "This is an experimental breakout condition, not a validated entry.";
+    } else {
+      signal = "POSSIBLE SELL SETUP";
+      sl = entry + distance * 1.5;
+      tp1 = entry - distance * 1.5;
+      tp2 = entry - distance * 3;
+
+      explanation =
+        "The last candle closed below the previous 19-candle range. " +
+        "This is an experimental breakout condition, not a validated entry.";
+    }
   }
 
   setValueClass(
-    "signal",
-    signal,
+    "signal", signal,
     signal.includes("BUY") ? "green" :
     signal.includes("SELL") ? "red" : ""
   );
 
-  setText("entry", formatPrice(entry, symbol));
-  setText("sl", formatPrice(stopLoss, symbol));
-  setText("tp1", formatPrice(takeProfit1, symbol));
-  setText("tp2", formatPrice(takeProfit2, symbol));
+  setText("entry", formatPrice(entry, code));
+  setText("sl", formatPrice(sl, code));
+  setText("tp1", formatPrice(tp1, code));
+  setText("tp2", formatPrice(tp2, code));
   setText("rr", entry === null ? "--" : "1:1 / 1:2");
 
   setText("explanation", explanation);
 
   setText(
     "checklist",
-    "Candles received: " + data.length +
+    "Valid candles: " + data.length +
     " | Bias: " + bias +
-    " | Range breakout: " + (bullishBreak || bearishBreak ? "Possible" : "No") +
+    " | Range break: " + (bullishBreak || bearishBreak ? "Possible" : "No") +
     " | Liquidity sweep: " + (sweptHigh || sweptLow ? "Possible" : "Not detected") +
     " | FVG: not implemented" +
     " | Order blocks: not implemented" +
@@ -641,58 +592,67 @@ async function loadScanner() {
   scanButton.disabled = true;
   scanButton.textContent = "Scanning...";
 
-  const symbolCode = document.getElementById("symbol").value;
-  const timeframeCode = document.getElementById("timeframe").value;
+  const code = document.getElementById("symbol").value;
+  const intervalCode = document.getElementById("timeframe").value;
+  const symbol = SYMBOL_MAP[code];
+  const interval = INTERVAL_MAP[intervalCode];
 
-  const symbol = SYMBOL_MAP[symbolCode];
-  const interval = INTERVAL_MAP[timeframeCode];
-
-  setText(
-    "chartTitle",
-    symbol + " — " + interval
-  );
-
-  statusElement.textContent = "Requesting market data...";
+  setText("chartTitle", symbol + " — " + interval);
+  setStatus("Connecting to market data...", "");
 
   try {
     const result = await requestCandles(symbol, interval);
 
+    /*
+     * Only update the chart after valid data has been received.
+     */
+    candleSeries.setData(result.candles);
     candleData = result.candles;
 
-    candleSeries.setData(candleData);
     chart.timeScale().fitContent();
-
     analyseMarket();
 
     lastSuccessfulUpdate = new Date();
 
-    statusElement.textContent =
-      "DATA RECEIVED | Source: " + result.source +
-      " | Instrument: " + symbol +
-      " | Interval: " + interval;
+    setStatus(
+      "CONNECTED | Source: " + result.source +
+      " | " + symbol + " | " + interval +
+      " | " + candleData.length + " candles received.",
+      "ok"
+    );
 
     setText(
       "updatedAt",
-      "Last successful request: " +
+      "Last successful update: " +
       lastSuccessfulUpdate.toLocaleString()
     );
 
   } catch (error) {
     console.error("PipSense market data error:", error);
 
-    statusElement.textContent =
-      "DATA ERROR: " +
-      (error.name === "AbortError"
-        ? "The request timed out."
-        : error.message) +
-      " Check your Worker URL, API quota and instrument access.";
+    let message;
 
-    /*
-     * Keep previously received candles visible, but don't
-     * represent an unsuccessful request as a fresh update.
-     */
+    if (error.name === "AbortError") {
+      message = "Request timed out after 20 seconds.";
+    } else if (error instanceof TypeError) {
+      message =
+        "Network or CORS error. Check Worker availability and CORS settings.";
+    } else {
+      message = error.message || "Unknown market data error.";
+    }
+
+    setStatus("CONNECTION ERROR | " + message, "error");
+
+    setText(
+      "updatedAt",
+      "Last successful update: " +
+      (lastSuccessfulUpdate
+        ? lastSuccessfulUpdate.toLocaleString()
+        : "Never")
+    );
+
     if (candleData.length === 0) {
-      clearAnalysis("No valid market data is currently available.");
+      clearAnalysis("No market data received. Fix the connection and try again.");
     }
 
   } finally {
@@ -708,26 +668,43 @@ function restartAutoRefresh() {
   }
 
   refreshTimer = setInterval(() => {
-    loadScanner();
+    if (!document.hidden) {
+      loadScanner();
+    }
   }, 60000);
 }
 
 scanButton.addEventListener("click", loadScanner);
 
 document.getElementById("symbol").addEventListener("change", loadScanner);
-
 document.getElementById("timeframe").addEventListener("change", loadScanner);
 
 window.addEventListener("resize", () => {
-  chart.applyOptions({
-    width: chartElement.clientWidth,
-    height: chartElement.clientHeight
-  });
+  if (chart) {
+    chart.applyOptions({
+      width: chartElement.clientWidth,
+      height: chartElement.clientHeight
+    });
+  }
 });
 
-loadScanner();
-restartAutoRefresh();
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && !requestInProgress) {
+    loadScanner();
+  }
+});
+
+try {
+  initialiseChart();
+  loadScanner();
+  restartAutoRefresh();
+} catch (error) {
+  console.error("PipSense startup error:", error);
+  setStatus("STARTUP ERROR | " + error.message, "error");
+  scanButton.disabled = true;
+}
 </script>
 
 </body>
 </html>
+```
