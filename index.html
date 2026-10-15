@@ -1,1 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PipSense AI Scanner</title>
 
+<script src="https://unpkg.com/lightweight-charts@4.2.2/dist/lightweight-charts.standalone.production.js"></script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #080d18;
+  color: #edf2ff;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  padding: 20px;
+  background: #111a2c;
+  border-bottom: 1px solid #26344d;
+}
+
+header h1 {
+  margin: 0;
+  color: #36d6a0;
+  font-size: 25px;
+}
+
+header p {
+  margin-bottom: 0;
+  color: #aab8d0;
+  font-size: 13px;
+}
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 15px;
+}
+
+.panel {
+  background: #111a2c;
+  border: 1px solid #26344d;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 15px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+select, button {
+  padding: 12px;
+  border-radius: 7px;
+  border: 1px solid #35445f;
+  background: #19263c;
+  color: white;
+  font-size: 14px;
+}
+
+button {
+  background: #087f62;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #0ba77f;
+}
+
+.status {
+  color: #ffca68;
+  font-size: 12px;
+  margin-top: 12px;
+}
+
+#chart {
+  height: 350px;
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.label {
+  color: #9baac3;
+  font-size: 12px;
+}
+
+.value {
+  margin-top: 8px;
+  font-size: 20px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
+.green {
+  color: #36d6a0;
+}
+
+.red {
+  color: #ff737d;
+}
+
+h2 {
+  font-size: 17px;
+  margin-top: 0;
+}
+
+.small {
+  font-size: 12px;
+  color: #9baac3;
+  line-height: 1.6;
+}
+
+footer {
+  text-align: center;
+  color: #7788a5;
+  font-size: 12px;
+  padding: 20px;
+}
+
+@media (max-width: 500px) {
+  #chart {
+    height: 300px;
+  }
+
+  header h1 {
+    font-size: 22px;
+  }
+
+  main {
+    padding: 10px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>⚡ PipSense AI</h1>
+  <p>Forex & Gold Market Scanner</p>
+</header>
+
+<main>
+
+  <section class="panel">
+    <h2>Market Scanner</h2>
+
+    <div class="controls">
+      <select id="symbol">
+        <option value="XAUUSD">XAU/USD — Gold</option>
+        <option value="EURUSD">EUR/USD</option>
+        <option value="GBPUSD">GBP/USD</option>
+        <option value="USDJPY">USD/JPY</option>
+      </select>
+
+      <select id="timeframe">
+        <option value="5">5 Minute</option>
+        <option value="15" selected>15 Minute</option>
+        <option value="60">1 Hour</option>
+        <option value="240">4 Hour</option>
+      </select>
+
+      <button id="scanButton">Scan Market</button>
+    </div>
+
+    <div class="status" id="dataStatus">
+      DEMO MODE — prices are simulated, not live market data.
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2 id="chartTitle">XAU/USD Candlestick Chart</h2>
+    <div id="chart"></div>
+    <p class="small">
+      Demo chart only. Connect a verified live-data provider before
+      using this scanner for real trading decisions.
+    </p>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <div class="label">Market Bias</div>
+      <div class="value" id="bias">Calculating...</div>
+    </div>
+
+    <div class="panel">
+      <div class="label">BOS Structure</div>
+      <div class="value" id="bos">Checking...</div>
+    </div>
+
+    <div class="panel">
+      <div class="label">Liquidity Sweep</div>
+      <div class="value" id="sweep">Checking...</div>
+    </div>
+
+    <div class="panel">
+      <div class="label">Latest Demo Price</div>
+      <div class="value" id="price">--</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Trade Setup</h2>
+
+    <div class="grid">
+      <div>
+        <div class="label">Signal</div>
+        <div class="value" id="signal">WAIT</div>
+      </div>
+
+      <div>
+        <div class="label">Entry</div>
+        <div class="value" id="entry">--</div>
+      </div>
+
+      <div>
+        <div class="label">Stop Loss</div>
+        <div class="value red" id="sl">--</div>
+      </div>
+
+      <div>
+        <div class="label">Take Profit 1</div>
+        <div class="value green" id="tp1">--</div>
+      </div>
+
+      <div>
+        <div class="label">Take Profit 2</div>
+        <div class="value green" id="tp2">--</div>
+      </div>
+
+      <div>
+        <div class="label">Risk/Reward</div>
+        <div class="value" id="rr">--</div>
+      </div>
+    </div>
+
+    <p class="small" id="explanation">
+      Scan to analyse the demonstration candles.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Scanner Checklist</h2>
+    <p id="checklist" class="small">
+      Waiting for analysis.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Risk Reminder</h2>
+    <p class="small">
+      This prototype does not place trades. Signals are experimental,
+      and no strategy guarantees accuracy or profits. Never trade
+      using simulated prices. Confirm setups on a real chart and
+      test the rules before risking money.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  PipSense AI Scanner • Prototype v1.0 • Demo data
+</footer>
+
+<script>
+const chartElement = document.getElementById("chart");
+
+const chart = LightweightCharts.createChart(chartElement, {
+  layout: {
+    background: { color: "#111a2c" },
+    textColor: "#d5def0"
+  },
+  grid: {
+    vertLines: { color: "#202c42" },
+    horzLines: { color: "#202c42" }
+  },
+  rightPriceScale: {
+    borderColor: "#35445f"
+  },
+  timeScale: {
+    borderColor: "#35445f",
+    timeVisible: true
+  },
+  width: chartElement.clientWidth,
+  height: chartElement.clientHeight
+});
+
+const candles = chart.addCandlestickSeries({
+  upColor: "#36d6a0",
+  downColor: "#ff737d",
+  borderUpColor: "#36d6a0",
+  borderDownColor: "#ff737d",
+  wickUpColor: "#36d6a0",
+  wickDownColor: "#ff737d"
+});
+
+let candleData = [];
+
+function basePrice(symbol) {
+  if (symbol === "XAUUSD") return 2650;
+  if (symbol === "EURUSD") return 1.08;
+  if (symbol === "GBPUSD") return 1.29;
+  return 150;
+}
+
+function precision(symbol) {
+  return symbol === "XAUUSD" ? 2 :
+         symbol === "USDJPY" ? 3 : 5;
+}
+
+function generateDemoCandles() {
+  const symbol = document.getElementById("symbol").value;
+  const minutes = Number(document.getElementById("timeframe").value);
+  const base = basePrice(symbol);
+  const step = symbol === "XAUUSD" ? 1.8 :
+               symbol === "USDJPY" ? 0.12 : 0.0012;
+
+  let price = base;
+  const result = [];
+  const now = Math.floor(Date.now() / 1000);
+  const interval = minutes * 60;
+  const start = Math.floor(now / interval) * interval - 99 * interval;
+
+  for (let i = 0; i < 100; i++) {
+    const open = price;
+    const move = (Math.random() - 0.48) * step * 2;
+    const close = open + move;
+    const high = Math.max(open, close) + Math.random() * step;
+    const low = Math.min(open, close) - Math.random() * step;
+
+    result.push({
+      time: start + i * interval,
+      open: Number(open.toFixed(precision(symbol))),
+      high: Number(high.toFixed(precision(symbol))),
+      low: Number(low.toFixed(precision(symbol))),
+      close: Number(close.toFixed(precision(symbol)))
+    });
+
+    price = close;
+  }
+
+  return result;
+}
+
+function analyseMarket() {
+  const symbol = document.getElementById("symbol").value;
+  const data = candleData;
+  const p = precision(symbol);
+  const last = data[data.length - 1];
+
+  if (data.length < 30) return;
+
+  const recent = data.slice(-20, -1);
+  const previous = data.slice(-40, -20);
+
+  const recentHigh = Math.max(...recent.map(c => c.high));
+  const recentLow = Math.min(...recent.map(c => c.low));
+  const previousHigh = Math.max(...previous.map(c => c.high));
+  const previousLow = Math.min(...previous.map(c => c.low));
+
+  const bullish = last.close > recentHigh;
+  const bearish = last.close < recentLow;
+
+  let bias = "NEUTRAL";
+  if (last.close > previousHigh) bias = "BULLISH";
+  if (last.close < previousLow) bias = "BEARISH";
+
+  document.getElementById("bias").textContent = bias;
+  document.getElementById("bias").className =
+    "value " + (bias === "BULLISH" ? "green" :
+                bias === "BEARISH" ? "red" : "");
+
+  document.getElementById("bos").textContent =
+    bullish ? "Bullish break" :
+    bearish ? "Bearish break" : "No break";
+
+  const sweepHigh = last.high > recentHigh && last.close < recentHigh;
+  const sweepLow = last.low < recentLow && last.close > recentLow;
+
+  document.getElementById("sweep").textContent =
+    sweepHigh ? "High swept" :
+    sweepLow ? "Low swept" : "None detected";
+
+  document.getElementById("price").textContent =
+    last.close.toFixed(p);
+
+  let signal = "WAIT";
+  let entry = last.close;
+  let sl = null;
+  let tp1 = null;
+  let tp2 = null;
+  let explanation = "No clear demo breakout. Wait for confirmation.";
+
+  const riskDistance = Math.max(
+    last.high - last.low,
+    symbol === "XAUUSD" ? 1 : symbol === "USDJPY" ? 0.01 : 0.0001
+  );
+
+  if (bullish) {
+    signal = "DEMO BUY";
+    sl = entry - riskDistance * 1.5;
+    tp1 = entry + riskDistance * 1.5;
+    tp2 = entry + riskDistance * 3;
+    explanation = "Demo candle closed above recent highs. This is a basic breakout test, not a validated ICT/SMC signal.";
+  } else if (bearish) {
+    signal = "DEMO SELL";
+    sl = entry + riskDistance * 1.5;
+    tp1 = entry - riskDistance * 1.5;
+    tp2 = entry - riskDistance * 3;
+    explanation = "Demo candle closed below recent lows. This is a basic breakout test, not a validated ICT/SMC signal.";
+  }
+
+  document.getElementById("signal").textContent = signal;
+  document.getElementById("entry").textContent = entry.toFixed(p);
+  document.getElementById("sl").textContent =
+    sl === null ? "--" : sl.toFixed(p);
+  document.getElementById("tp1").textContent =
+    tp1 === null ? "--" : tp1.toFixed(p);
+  document.getElementById("tp2").textContent =
+    tp2 === null ? "--" : tp2.toFixed(p);
+  document.getElementById("rr").textContent =
+    sl === null ? "--" : "1:1 / 1:2";
+
+  document.getElementById("explanation").textContent = explanation;
+
+  document.getElementById("checklist").textContent =
+    "Market bias: " + bias +
+    " | Basic breakout: " + (bullish || bearish ? "Yes" : "No") +
+    " | Liquidity sweep: " + (sweepHigh || sweepLow ? "Possible" : "Not detected") +
+    " | Higher-timeframe trend, FVG, order block and news filter: not yet implemented.";
+}
+
+function loadScanner() {
+  candleData = generateDemoCandles();
+  candles.setData(candleData);
+  chart.timeScale().fitContent();
+
+  document.getElementById("chartTitle").textContent =
+    document.getElementById("symbol").selectedOptions[0].text +
+    " — Demo Candles";
+
+  document.getElementById("dataStatus").textContent =
+    "DEMO MODE — randomly generated candles; NOT live market data.";
+
+  analyseMarket();
+}
+
+document.getElementById("scanButton").addEventListener("click", loadScanner);
+document.getElementById("symbol").addEventListener("change", loadScanner);
+document.getElementById("timeframe").addEventListener("change", loadScanner);
+
+window.addEventListener("resize", () => {
+  chart.applyOptions({ width: chartElement.clientWidth });
+});
+
+loadScanner();
+</script>
+
+</body>
+</html>
