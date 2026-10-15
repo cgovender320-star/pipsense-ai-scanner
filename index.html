@@ -2,709 +2,1409 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#080d18">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>PipSense AI Scanner</title>
+  <title>PipSense AI Scanner</title>
 
-<script src="https://unpkg.com/lightweight-charts@4.2.2/dist/lightweight-charts.standalone.production.js"></script>
+  <meta
+    name="description"
+    content="PipSense AI market scanner for forex and gold. View charts, market bias, possible liquidity sweeps, and experimental trade setups."
+  >
 
-<style>
-*{box-sizing:border-box}
+  <script src="https://unpkg.com/lightweight-charts@4.2.2/dist/lightweight-charts.standalone.production.js"></script>
 
-body{
-  margin:0;
-  background:#080d18;
-  color:#edf2ff;
-  font-family:Arial,sans-serif
-}
+  <style>
+    :root {
+      --background: #080d18;
+      --panel: #111a2b;
+      --panel-light: #172238;
+      --border: #263550;
+      --text: #eef3ff;
+      --muted: #9baac4;
+      --green: #20d99a;
+      --red: #ff5c70;
+      --blue: #62a8ff;
+      --yellow: #ffd166;
+    }
 
-header{
-  padding:20px;
-  background:#111a2c;
-  border-bottom:1px solid #26344d
-}
+    * {
+      box-sizing: border-box;
+    }
 
-header h1{
-  margin:0;
-  color:#36d6a0;
-  font-size:25px
-}
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-header p{
-  margin-bottom:0;
-  color:#aab8d0;
-  font-size:13px
-}
+    button,
+    select {
+      font: inherit;
+    }
 
-main{
-  max-width:1100px;
-  margin:auto;
-  padding:15px
-}
+    .container {
+      width: min(1400px, 100%);
+      margin: auto;
+      padding: 22px;
+    }
 
-.panel{
-  background:#111a2c;
-  border:1px solid #26344d;
-  border-radius:12px;
-  padding:16px;
-  margin-bottom:15px;
-  min-width:0
-}
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
 
-.controls{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px
-}
+    .logo {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
 
-select,button{
-  padding:12px;
-  border-radius:7px;
-  border:1px solid #35445f;
-  background:#19263c;
-  color:white;
-  font-size:14px
-}
+    .logo span {
+      color: var(--green);
+    }
 
-button{
-  background:#087f62;
-  border:none;
-  cursor:pointer;
-  font-weight:bold
-}
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
 
-button:disabled{
-  opacity:.6;
-  cursor:wait
-}
+    .badge {
+      padding: 9px 13px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--green);
+      font-size: 12px;
+      background: #10271f;
+    }
 
-.status{
-  color:#ffca68;
-  font-size:12px;
-  line-height:1.6;
-  margin-top:12px;
-  overflow-wrap:anywhere
-}
+    .section-title {
+      font-size: 18px;
+      margin: 0 0 16px;
+    }
 
-.status.ok{color:#36d6a0}
-.status.error{color:#ff737d}
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      min-width: 0;
+    }
 
-#chart{
-  height:350px;
-  width:100%
-}
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+      gap: 12px;
+      align-items: end;
+    }
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-  gap:12px
-}
+    .control-group label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
 
-.label{
-  color:#9baac3;
-  font-size:12px
-}
+    select {
+      width: 100%;
+      padding: 13px;
+      border-radius: 9px;
+      background: var(--panel-light);
+      color: var(--text);
+      border: 1px solid var(--border);
+      outline: none;
+    }
 
-.value{
-  margin-top:8px;
-  font-size:19px;
-  font-weight:bold;
-  overflow-wrap:anywhere
-}
+    select:focus {
+      border-color: var(--blue);
+    }
 
-.green{color:#36d6a0}
-.red{color:#ff737d}
+    button {
+      padding: 13px 20px;
+      border: none;
+      border-radius: 9px;
+      background: var(--green);
+      color: #07140f;
+      font-weight: 800;
+      cursor: pointer;
+      min-height: 44px;
+    }
 
-h2{
-  font-size:17px;
-  margin-top:0
-}
+    button:hover {
+      filter: brightness(1.08);
+    }
 
-.small{
-  font-size:12px;
-  color:#9baac3;
-  line-height:1.7
-}
+    button:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
 
-footer{
-  text-align:center;
-  color:#7788a5;
-  font-size:12px;
-  padding:20px
-}
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 17px;
+      font-size: 12px;
+      color: var(--muted);
+    }
 
-@media(max-width:500px){
-  #chart{height:300px}
-  header h1{font-size:22px}
-  main{padding:10px}
-  select,button{flex:1;min-width:0}
-}
-</style>
+    #dataStatus {
+      overflow-wrap: anywhere;
+    }
+
+    .status-connected {
+      color: var(--green);
+    }
+
+    .status-error {
+      color: var(--red);
+    }
+
+    .status-warning {
+      color: var(--yellow);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .chart-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .chart-subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    #chart {
+      width: 100%;
+      height: 430px;
+      position: relative;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .metric-value {
+      font-size: 21px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .metric-description {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    .green {
+      color: var(--green);
+    }
+
+    .red {
+      color: var(--red);
+    }
+
+    .blue {
+      color: var(--blue);
+    }
+
+    .yellow {
+      color: var(--yellow);
+    }
+
+    .trade-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .trade-item {
+      background: var(--panel-light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 15px;
+      min-width: 0;
+    }
+
+    .trade-item .metric-label {
+      margin-bottom: 9px;
+    }
+
+    .trade-item .metric-value {
+      font-size: 17px;
+    }
+
+    .signal-box {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel-light);
+      margin-bottom: 17px;
+    }
+
+    .signal-heading {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 9px;
+    }
+
+    #signal {
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    #signalReason {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 10px;
+    }
+
+    .checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .check-item {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--panel-light);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .check-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .notice {
+      border-left: 3px solid var(--yellow);
+      padding: 12px 14px;
+      background: #211d13;
+      color: #e8d8a8;
+      font-size: 12px;
+      line-height: 1.7;
+      border-radius: 5px;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 10px 0 25px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 850px) {
+      .controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .trade-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #chart {
+        height: 350px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 12px;
+      }
+
+      .panel {
+        padding: 14px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .metric-value {
+        font-size: 17px;
+      }
+
+      .checklist {
+        grid-template-columns: 1fr;
+      }
+
+      #chart {
+        height: 320px;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <main class="container">
 
-<header>
-  <h1>⚡ PipSense AI</h1>
-  <p>Forex &amp; Gold Market Scanner</p>
-</header>
+    <header>
+      <div>
+        <div class="logo">⚡ PipSense <span>AI</span></div>
+        <div class="subtitle">
+          Forex & Gold Market Scanner
+        </div>
+      </div>
 
-<main>
+      <div class="badge">EXPERIMENTAL SCANNER</div>
+    </header>
 
-<section class="panel">
-  <h2>Market Scanner</h2>
+    <section class="panel">
+      <h2 class="section-title">Market Scanner</h2>
 
-  <div class="controls">
-    <select id="symbol" aria-label="Market">
-      <option value="XAUUSD">XAU/USD — Gold</option>
-      <option value="EURUSD">EUR/USD</option>
-      <option value="GBPUSD">GBP/USD</option>
-      <option value="USDJPY">USD/JPY</option>
-    </select>
+      <div class="controls">
+        <div class="control-group">
+          <label for="symbol">Trading pair</label>
+          <select id="symbol">
+            <option value="XAUUSD">XAU/USD — Gold</option>
+            <option value="EURUSD">EUR/USD</option>
+            <option value="GBPUSD">GBP/USD</option>
+            <option value="USDJPY">USD/JPY</option>
+          </select>
+        </div>
 
-    <select id="timeframe" aria-label="Timeframe">
-      <option value="5">5 Minute</option>
-      <option value="15" selected>15 Minute</option>
-      <option value="60">1 Hour</option>
-      <option value="240">4 Hour</option>
-    </select>
+        <div class="control-group">
+          <label for="timeframe">Timeframe</label>
+          <select id="timeframe">
+            <option value="5">5 Minutes</option>
+            <option value="15" selected>15 Minutes</option>
+            <option value="60">1 Hour</option>
+            <option value="240">4 Hours</option>
+          </select>
+        </div>
 
-    <button id="scanButton" type="button">Scan Market</button>
-  </div>
+        <div class="control-group">
+          <label for="refreshMode">Automatic refresh</label>
+          <select id="refreshMode">
+            <option value="60" selected>Every 60 seconds</option>
+            <option value="30">Every 30 seconds</option>
+            <option value="120">Every 2 minutes</option>
+            <option value="0">Off</option>
+          </select>
+        </div>
 
-  <div class="status" id="dataStatus" role="status" aria-live="polite">
-    Connecting to market data...
-  </div>
+        <button id="scanButton" type="button">Scan Market</button>
+      </div>
 
-  <div class="small" id="updatedAt">No successful update yet.</div>
-</section>
+      <div class="status-row">
+        <div id="dataStatus" role="status" aria-live="polite">
+          Connecting to market data...
+        </div>
 
-<section class="panel">
-  <h2 id="chartTitle">Candlestick Chart</h2>
-  <div id="chart"></div>
-  <p class="small">
-    Market data is provided through your configured Cloudflare Worker.
-    Prices may be delayed. Verify all prices with your broker.
-  </p>
-</section>
+        <div id="updatedAt">Last update: --</div>
+      </div>
+    </section>
 
-<section class="grid">
+    <section class="panel">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title" id="chartTitle">XAU/USD — Gold</div>
+          <div class="chart-subtitle" id="chartSubtitle">
+            15-minute candlestick chart
+          </div>
+        </div>
 
-  <div class="panel">
-    <div class="label">Experimental Market Bias</div>
-    <div class="value" id="bias">--</div>
-  </div>
+        <div class="badge" id="sourceBadge">Market data</div>
+      </div>
 
-  <div class="panel">
-    <div class="label">Structure Check</div>
-    <div class="value" id="bos">--</div>
-  </div>
+      <div id="chart"></div>
+    </section>
 
-  <div class="panel">
-    <div class="label">Possible Liquidity Sweep</div>
-    <div class="value" id="sweep">--</div>
-  </div>
+    <section class="grid">
+      <div class="panel">
+        <div class="metric-label">Experimental Market Bias</div>
+        <div class="metric-value" id="bias">--</div>
+        <div class="metric-description" id="biasDescription">
+          Waiting for valid candles.
+        </div>
+      </div>
 
-  <div class="panel">
-    <div class="label">Latest Candle Close</div>
-    <div class="value" id="price">--</div>
-  </div>
+      <div class="panel">
+        <div class="metric-label">Structure Check</div>
+        <div class="metric-value" id="bos">--</div>
+        <div class="metric-description" id="bosDescription">
+          Waiting for analysis.
+        </div>
+      </div>
 
-</section>
+      <div class="panel">
+        <div class="metric-label">Possible Liquidity Sweep</div>
+        <div class="metric-value" id="sweep">--</div>
+        <div class="metric-description" id="sweepDescription">
+          Waiting for analysis.
+        </div>
+      </div>
 
-<section class="panel">
-  <h2>Experimental Trade Setup</h2>
+      <div class="panel">
+        <div class="metric-label">Latest Candle Close</div>
+        <div class="metric-value" id="price">--</div>
+        <div class="metric-description" id="candleTime">
+          Candle time: --
+        </div>
+      </div>
+    </section>
 
-  <div class="grid">
-    <div><div class="label">Signal</div><div class="value" id="signal">WAIT</div></div>
-    <div><div class="label">Reference Entry</div><div class="value" id="entry">--</div></div>
-    <div><div class="label">Stop Loss</div><div class="value red" id="sl">--</div></div>
-    <div><div class="label">Take Profit 1</div><div class="value green" id="tp1">--</div></div>
-    <div><div class="label">Take Profit 2</div><div class="value green" id="tp2">--</div></div>
-    <div><div class="label">Risk/Reward</div><div class="value" id="rr">--</div></div>
-  </div>
+    <section class="panel">
+      <h2 class="section-title">Trade Setup</h2>
 
-  <p class="small" id="explanation">Waiting for valid candle data.</p>
-</section>
+      <div class="signal-box">
+        <div class="signal-heading">SCANNER RESULT</div>
+        <div id="signal">WAITING FOR DATA</div>
+        <div id="signalReason">
+          The scanner will assess the latest available candles.
+        </div>
+      </div>
 
-<section class="panel">
-  <h2>Analysis Checklist</h2>
-  <p id="checklist" class="small">Waiting for market data.</p>
-</section>
+      <div class="trade-grid">
+        <div class="trade-item">
+          <div class="metric-label">Entry</div>
+          <div class="metric-value" id="entry">--</div>
+        </div>
 
-<section class="panel">
-  <h2>Important Risk Notice</h2>
-  <p class="small">
-    This experimental scanner does not place trades.
-    Its breakout and liquidity checks are simplified and are not a
-    validated ICT/SMC strategy. Signals and reference levels are not
-    financial advice. Test independently before considering live trading.
-  </p>
-</section>
+        <div class="trade-item">
+          <div class="metric-label">Stop Loss</div>
+          <div class="metric-value red" id="sl">--</div>
+        </div>
 
-</main>
+        <div class="trade-item">
+          <div class="metric-label">Take Profit 1</div>
+          <div class="metric-value green" id="tp1">--</div>
+        </div>
 
-<footer>PipSense AI Scanner • Version 2.1</footer>
+        <div class="trade-item">
+          <div class="metric-label">Take Profit 2</div>
+          <div class="metric-value green" id="tp2">--</div>
+        </div>
 
-<script>
-"use strict";
+        <div class="trade-item">
+          <div class="metric-label">Planned Risk:Reward</div>
+          <div class="metric-value" id="rr">--</div>
+        </div>
+      </div>
+    </section>
 
-/*
- * Existing Worker address retained.
- * Keep all API keys in Cloudflare Worker secrets.
- */
-const API_BASE =
-  "https://sweet-limit-6236pipsense-market-api.cgovender320.workers.dev";
+    <section class="panel">
+      <h2 class="section-title">Market Checklist</h2>
 
-const SYMBOL_MAP = {
-  XAUUSD: "XAU/USD",
-  EURUSD: "EUR/USD",
-  GBPUSD: "GBP/USD",
-  USDJPY: "USD/JPY"
-};
+      <div class="checklist">
+        <div class="check-item">
+          <strong id="checkData">⏳ Candle data</strong>
+          <span>Checks whether usable market candles are available.</span>
+        </div>
 
-const INTERVAL_MAP = {
-  "5": "5min",
-  "15": "15min",
-  "60": "1h",
-  "240": "4h"
-};
+        <div class="check-item">
+          <strong id="checkTrend">⏳ Market bias</strong>
+          <span>Compares recent closes with earlier price levels.</span>
+        </div>
 
-const chartElement = document.getElementById("chart");
-const statusElement = document.getElementById("dataStatus");
-const scanButton = document.getElementById("scanButton");
+        <div class="check-item">
+          <strong id="checkStructure">⏳ Structure</strong>
+          <span>Looks for a simplified recent-range breakout.</span>
+        </div>
 
-let chart = null;
-let candleSeries = null;
-let candleData = [];
-let requestInProgress = false;
-let refreshTimer = null;
-let lastSuccessfulUpdate = null;
-let requestController = null;
+        <div class="check-item">
+          <strong id="checkSweep">⏳ Liquidity</strong>
+          <span>Checks for a possible wick beyond recent highs or lows.</span>
+        </div>
+      </div>
+    </section>
 
-function setText(id, value) {
-  document.getElementById(id).textContent = value;
-}
+    <section class="panel">
+      <div class="notice">
+        <strong>Important risk warning:</strong>
+        PipSense AI is an experimental market scanner, not a guaranteed
+        trading system. BUY and SELL labels are generated by simplified
+        candle and breakout rules, not a validated high-probability ICT/SMC
+        strategy. Entry, stop-loss and take-profit levels are estimates.
+        This website does not place trades. Verify prices and signals with
+        your broker before making any trading decision.
+      </div>
+    </section>
 
-function setValueClass(id, value, color) {
-  const element = document.getElementById(id);
-  element.textContent = value;
-  element.className = "value" + (color ? " " + color : "");
-}
+    <div class="footer">
+      PipSense AI Scanner · Market data depends on the configured provider.
+      <br>
+      A connected API does not necessarily mean prices are real-time.
+    </div>
 
-function setStatus(message, type = "") {
-  statusElement.textContent = message;
-  statusElement.className = "status" + (type ? " " + type : "");
-}
+  </main>
 
-function getPrecision(code) {
-  if (code === "XAUUSD") return 2;
-  if (code === "USDJPY") return 3;
-  return 5;
-}
+  <script>
+    "use strict";
 
-function formatPrice(value, code) {
-  if (!Number.isFinite(value)) return "--";
-  return value.toFixed(getPrecision(code));
-}
+    // Cloudflare Worker API.
+    const API_BASE =
+      "https://sweet-limit-6236pipsense-market-api.cgovender320.workers.dev";
 
-function clearAnalysis(message) {
-  ["bias", "bos", "sweep", "price"].forEach(id =>
-    setValueClass(id, "--", "")
-  );
-
-  setValueClass("signal", "WAIT", "");
-
-  ["entry", "sl", "tp1", "tp2", "rr"].forEach(id =>
-    setText(id, "--")
-  );
-
-  setText("explanation", message);
-  setText("checklist", "Analysis unavailable until valid candle data is received.");
-}
-
-function initialiseChart() {
-  if (!window.LightweightCharts) {
-    throw new Error("Chart library failed to load. Check your internet connection.");
-  }
-
-  chart = LightweightCharts.createChart(chartElement, {
-    width: chartElement.clientWidth || 600,
-    height: chartElement.clientHeight || 350,
-
-    layout: {
-      background: { color: "#111a2c" },
-      textColor: "#d5def0"
-    },
-
-    grid: {
-      vertLines: { color: "#202c42" },
-      horzLines: { color: "#202c42" }
-    },
-
-    rightPriceScale: { borderColor: "#35445f" },
-
-    timeScale: {
-      borderColor: "#35445f",
-      timeVisible: true,
-      secondsVisible: false
-    },
-
-    crosshair: {
-      mode: LightweightCharts.CrosshairMode.Normal
-    }
-  });
-
-  candleSeries = chart.addCandlestickSeries({
-    upColor: "#36d6a0",
-    downColor: "#ff737d",
-    borderUpColor: "#36d6a0",
-    borderDownColor: "#ff737d",
-    wickUpColor: "#36d6a0",
-    wickDownColor: "#ff737d"
-  });
-}
-
-async function requestCandles(symbol, interval) {
-  const url = new URL(API_BASE + "/candles");
-
-  url.searchParams.set("symbol", symbol);
-  url.searchParams.set("interval", interval);
-
-  requestController = new AbortController();
-
-  const timeout = setTimeout(() => {
-    requestController.abort();
-  }, 20000);
-
-  try {
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      signal: requestController.signal,
-      headers: { "Accept": "application/json" },
-      cache: "no-store"
-    });
-
-    const bodyText = await response.text();
-    let payload;
-
-    try {
-      payload = JSON.parse(bodyText);
-    } catch {
-      throw new Error(
-        "Worker returned a non-JSON response. Check the Worker URL and deployment."
-      );
-    }
-
-    if (!response.ok) {
-      throw new Error(
-        (payload && payload.error ? payload.error : "Market request failed") +
-        " (HTTP " + response.status + ")"
-      );
-    }
-
-    if (!payload || !Array.isArray(payload.candles)) {
-      throw new Error(
-        "Worker response has no candles array. Check its /candles endpoint."
-      );
-    }
-
-    const parsed = payload.candles
-      .map(c => ({
-        time: Number(c.time),
-        open: Number(c.open),
-        high: Number(c.high),
-        low: Number(c.low),
-        close: Number(c.close)
-      }))
-      .filter(c =>
-        Number.isFinite(c.time) &&
-        Number.isFinite(c.open) &&
-        Number.isFinite(c.high) &&
-        Number.isFinite(c.low) &&
-        Number.isFinite(c.close) &&
-        c.high >= c.low &&
-        c.high >= Math.max(c.open, c.close) &&
-        c.low <= Math.min(c.open, c.close)
-      )
-      .sort((a, b) => a.time - b.time);
-
-    /*
-     * Keep the last candle for any repeated timestamp.
-     */
-    const byTime = new Map();
-
-    for (const candle of parsed) {
-      byTime.set(candle.time, candle);
-    }
-
-    const candles = Array.from(byTime.values())
-      .sort((a, b) => a.time - b.time);
-
-    if (candles.length < 30) {
-      throw new Error(
-        "Only " + candles.length +
-        " valid candles received; at least 30 are needed."
-      );
-    }
-
-    return {
-      candles,
-      source: payload.source || "Configured market data provider"
+    const SYMBOL_MAP = {
+      XAUUSD: "XAU/USD",
+      EURUSD: "EUR/USD",
+      GBPUSD: "GBP/USD",
+      USDJPY: "USD/JPY"
     };
 
-  } finally {
-    clearTimeout(timeout);
-    requestController = null;
-  }
-}
+    const INTERVAL_MAP = {
+      "5": "5min",
+      "15": "15min",
+      "60": "1h",
+      "240": "4h"
+    };
 
-function analyseMarket() {
-  const code = document.getElementById("symbol").value;
-  const data = candleData;
+    const SYMBOL_NAMES = {
+      XAUUSD: "XAU/USD — Gold",
+      EURUSD: "EUR/USD",
+      GBPUSD: "GBP/USD",
+      USDJPY: "USD/JPY"
+    };
 
-  if (data.length < 40) {
-    clearAnalysis("At least 40 valid candles are needed for this analysis.");
-    return;
-  }
+    const TIMEFRAME_NAMES = {
+      "5": "5-minute",
+      "15": "15-minute",
+      "60": "1-hour",
+      "240": "4-hour"
+    };
 
-  const last = data[data.length - 1];
-  const recent = data.slice(-20, -1);
-  const older = data.slice(-40, -20);
+    let chart = null;
+    let candleSeries = null;
+    let candleData = [];
+    let requestInProgress = false;
+    let refreshTimer = null;
+    let requestController = null;
+    let lastSuccessfulUpdate = null;
 
-  const recentHigh = Math.max(...recent.map(c => c.high));
-  const recentLow = Math.min(...recent.map(c => c.low));
-  const olderHigh = Math.max(...older.map(c => c.high));
-  const olderLow = Math.min(...older.map(c => c.low));
+    const $ = (id) => document.getElementById(id);
 
-  const bullishBreak = last.close > recentHigh;
-  const bearishBreak = last.close < recentLow;
-
-  let bias = "NEUTRAL";
-
-  if (last.close > olderHigh) bias = "BULLISH";
-  if (last.close < olderLow) bias = "BEARISH";
-
-  setValueClass(
-    "bias", bias,
-    bias === "BULLISH" ? "green" :
-    bias === "BEARISH" ? "red" : ""
-  );
-
-  let structure = "No range break";
-
-  if (bullishBreak) structure = "Possible bullish break";
-  if (bearishBreak) structure = "Possible bearish break";
-
-  setValueClass(
-    "bos", structure,
-    bullishBreak ? "green" : bearishBreak ? "red" : ""
-  );
-
-  /*
-   * Sweep means a wick moves beyond a previous range and
-   * the candle closes back inside it.
-   */
-  const sweptHigh = last.high > recentHigh && last.close < recentHigh;
-  const sweptLow = last.low < recentLow && last.close > recentLow;
-
-  const sweep = sweptHigh ? "Possible high sweep" :
-                sweptLow ? "Possible low sweep" : "Not detected";
-
-  setValueClass(
-    "sweep", sweep,
-    sweptLow ? "green" : sweptHigh ? "red" : ""
-  );
-
-  setText("price", formatPrice(last.close, code));
-
-  let signal = "WAIT";
-  let entry = null;
-  let sl = null;
-  let tp1 = null;
-  let tp2 = null;
-  let explanation =
-    "No breakout detected. The scanner will wait for another setup.";
-
-  if (bullishBreak !== bearishBreak) {
-    const distance = Math.max(
-      last.high - last.low,
-      code === "XAUUSD" ? 0.1 :
-      code === "USDJPY" ? 0.001 : 0.00001
-    );
-
-    entry = last.close;
-
-    if (bullishBreak) {
-      signal = "POSSIBLE BUY SETUP";
-      sl = entry - distance * 1.5;
-      tp1 = entry + distance * 1.5;
-      tp2 = entry + distance * 3;
-
-      explanation =
-        "The last candle closed above the previous 19-candle range. " +
-        "This is an experimental breakout condition, not a validated entry.";
-    } else {
-      signal = "POSSIBLE SELL SETUP";
-      sl = entry + distance * 1.5;
-      tp1 = entry - distance * 1.5;
-      tp2 = entry - distance * 3;
-
-      explanation =
-        "The last candle closed below the previous 19-candle range. " +
-        "This is an experimental breakout condition, not a validated entry.";
-    }
-  }
-
-  setValueClass(
-    "signal", signal,
-    signal.includes("BUY") ? "green" :
-    signal.includes("SELL") ? "red" : ""
-  );
-
-  setText("entry", formatPrice(entry, code));
-  setText("sl", formatPrice(sl, code));
-  setText("tp1", formatPrice(tp1, code));
-  setText("tp2", formatPrice(tp2, code));
-  setText("rr", entry === null ? "--" : "1:1 / 1:2");
-
-  setText("explanation", explanation);
-
-  setText(
-    "checklist",
-    "Valid candles: " + data.length +
-    " | Bias: " + bias +
-    " | Range break: " + (bullishBreak || bearishBreak ? "Possible" : "No") +
-    " | Liquidity sweep: " + (sweptHigh || sweptLow ? "Possible" : "Not detected") +
-    " | FVG: not implemented" +
-    " | Order blocks: not implemented" +
-    " | Higher-timeframe confirmation: not implemented" +
-    " | News filter: not implemented"
-  );
-}
-
-async function loadScanner() {
-  if (requestInProgress) return;
-
-  requestInProgress = true;
-  scanButton.disabled = true;
-  scanButton.textContent = "Scanning...";
-
-  const code = document.getElementById("symbol").value;
-  const intervalCode = document.getElementById("timeframe").value;
-  const symbol = SYMBOL_MAP[code];
-  const interval = INTERVAL_MAP[intervalCode];
-
-  setText("chartTitle", symbol + " — " + interval);
-  setStatus("Connecting to market data...", "");
-
-  try {
-    const result = await requestCandles(symbol, interval);
-
-    /*
-     * Only update the chart after valid data has been received.
-     */
-    candleSeries.setData(result.candles);
-    candleData = result.candles;
-
-    chart.timeScale().fitContent();
-    analyseMarket();
-
-    lastSuccessfulUpdate = new Date();
-
-    setStatus(
-      "CONNECTED | Source: " + result.source +
-      " | " + symbol + " | " + interval +
-      " | " + candleData.length + " candles received.",
-      "ok"
-    );
-
-    setText(
-      "updatedAt",
-      "Last successful update: " +
-      lastSuccessfulUpdate.toLocaleString()
-    );
-
-  } catch (error) {
-    console.error("PipSense market data error:", error);
-
-    let message;
-
-    if (error.name === "AbortError") {
-      message = "Request timed out after 20 seconds.";
-    } else if (error instanceof TypeError) {
-      message =
-        "Network or CORS error. Check Worker availability and CORS settings.";
-    } else {
-      message = error.message || "Unknown market data error.";
+    function setText(id, value) {
+      const element = $(id);
+      if (element) element.textContent = value;
     }
 
-    setStatus("CONNECTION ERROR | " + message, "error");
+    function setStatus(message, type = "") {
+      const element = $("dataStatus");
+      element.textContent = message;
+      element.className = "";
 
-    setText(
-      "updatedAt",
-      "Last successful update: " +
-      (lastSuccessfulUpdate
-        ? lastSuccessfulUpdate.toLocaleString()
-        : "Never")
-    );
-
-    if (candleData.length === 0) {
-      clearAnalysis("No market data received. Fix the connection and try again.");
+      if (type === "success") {
+        element.classList.add("status-connected");
+      } else if (type === "error") {
+        element.classList.add("status-error");
+      } else if (type === "warning") {
+        element.classList.add("status-warning");
+      }
     }
 
-  } finally {
-    requestInProgress = false;
-    scanButton.disabled = false;
-    scanButton.textContent = "Scan Market";
-  }
-}
+    function setMetric(id, value, color = "") {
+      const element = $(id);
+      element.textContent = value;
+      element.className = "metric-value";
 
-function restartAutoRefresh() {
-  if (refreshTimer !== null) {
-    clearInterval(refreshTimer);
-  }
+      if (color) element.classList.add(color);
+    }
 
-  refreshTimer = setInterval(() => {
-    if (!document.hidden) {
+    function setChecklist(id, message, good = null) {
+      const element = $(id);
+
+      if (good === true) {
+        element.textContent = "✓ " + message;
+        element.style.color = "var(--green)";
+      } else if (good === false) {
+        element.textContent = "✕ " + message;
+        element.style.color = "var(--red)";
+      } else {
+        element.textContent = "• " + message;
+        element.style.color = "var(--muted)";
+      }
+    }
+
+    function getPrecision(symbol) {
+      return symbol === "USDJPY" ? 3 : 5;
+    }
+
+    function formatPrice(value, symbol) {
+      if (!Number.isFinite(value)) return "--";
+
+      const digits = symbol === "XAUUSD"
+        ? 2
+        : getPrecision(symbol);
+
+      return value.toLocaleString("en-US", {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      });
+    }
+
+    function formatDateTime(date) {
+      if (!(date instanceof Date) || !Number.isFinite(date.getTime())) {
+        return "--";
+      }
+
+      return date.toLocaleString("en-ZA", {
+        timeZone: "Africa/Johannesburg",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      }) + " SAST";
+    }
+
+    function clearTradeSetup(message = "Waiting for analysis.") {
+      setText("signal", "NO SETUP");
+      $("signal").className = "";
+      $("signal").style.color = "var(--yellow)";
+
+      setText("entry", "--");
+      setText("sl", "--");
+      setText("tp1", "--");
+      setText("tp2", "--");
+      setText("rr", "--");
+      setText("signalReason", message);
+    }
+
+    function clearAnalysis(message = "Waiting for valid candles.") {
+      setMetric("bias", "--");
+      setText("biasDescription", message);
+
+      setMetric("bos", "--");
+      setText("bosDescription", message);
+
+      setMetric("sweep", "--");
+      setText("sweepDescription", message);
+
+      setText("price", "--");
+      setText("candleTime", "Candle time: --");
+
+      setChecklist("checkData", "Candle data", null);
+      setChecklist("checkTrend", "Market bias", null);
+      setChecklist("checkStructure", "Structure", null);
+      setChecklist("checkSweep", "Liquidity", null);
+
+      clearTradeSetup(message);
+    }
+
+    function initialiseChart() {
+      const chartElement = $("chart");
+
+      if (typeof LightweightCharts === "undefined") {
+        setStatus(
+          "Chart library failed to load. Check your internet connection.",
+          "error"
+        );
+        return;
+      }
+
+      chart = LightweightCharts.createChart(chartElement, {
+        width: chartElement.clientWidth,
+        height: chartElement.clientHeight,
+
+        layout: {
+          background: {
+            type: "solid",
+            color: "#111a2b"
+          },
+          textColor: "#b9c7df"
+        },
+
+        grid: {
+          vertLines: {
+            color: "#1e2a40"
+          },
+          horzLines: {
+            color: "#1e2a40"
+          }
+        },
+
+        rightPriceScale: {
+          borderColor: "#263550"
+        },
+
+        timeScale: {
+          borderColor: "#263550",
+          timeVisible: true,
+          secondsVisible: false
+        },
+
+        crosshair: {
+          mode: LightweightCharts.CrosshairMode.Normal
+        },
+
+        localization: {
+          locale: "en-US"
+        },
+
+        handleScroll: true,
+        handleScale: true
+      });
+
+      candleSeries = chart.addCandlestickSeries({
+        upColor: "#20d99a",
+        downColor: "#ff5c70",
+        borderUpColor: "#20d99a",
+        borderDownColor: "#ff5c70",
+        wickUpColor: "#20d99a",
+        wickDownColor: "#ff5c70"
+      });
+
+      chart.timeScale().fitContent();
+    }
+
+    function normaliseCandleTime(value) {
+      let time = Number(value);
+
+      if (!Number.isFinite(time) || time <= 0) {
+        return null;
+      }
+
+      // Handle millisecond Unix timestamps if the API returns them.
+      if (time > 100000000000) {
+        time = Math.floor(time / 1000);
+      }
+
+      // Candlestick times must be Unix seconds.
+      time = Math.floor(time);
+
+      // Reject timestamps that are clearly in the future.
+      const now = Math.floor(Date.now() / 1000);
+
+      if (time > now + 60) {
+        return null;
+      }
+
+      // Reject timestamps that are implausibly old.
+      if (time < Date.UTC(2000, 0, 1) / 1000) {
+        return null;
+      }
+
+      return time;
+    }
+
+    function normaliseCandles(rawCandles) {
+      if (!Array.isArray(rawCandles)) {
+        throw new Error("The API response does not contain a candles array.");
+      }
+
+      const now = Math.floor(Date.now() / 1000);
+      const parsed = [];
+      let futureCount = 0;
+      let invalidCount = 0;
+
+      for (const candle of rawCandles) {
+        if (!candle || typeof candle !== "object") {
+          invalidCount++;
+          continue;
+        }
+
+        const rawTime =
+          candle.time ??
+          candle.datetime ??
+          candle.timestamp ??
+          candle.date;
+
+        const time = normaliseCandleTime(rawTime);
+
+        if (time === null) {
+          const numericTime = Number(rawTime);
+
+          if (
+            Number.isFinite(numericTime) &&
+            numericTime > now + 60
+          ) {
+            futureCount++;
+          } else {
+            invalidCount++;
+          }
+
+          continue;
+        }
+
+        const open = Number(candle.open);
+        const high = Number(candle.high);
+        const low = Number(candle.low);
+        const close = Number(candle.close);
+
+        if (
+          !Number.isFinite(open) ||
+          !Number.isFinite(high) ||
+          !Number.isFinite(low) ||
+          !Number.isFinite(close) ||
+          open <= 0 ||
+          high <= 0 ||
+          low <= 0 ||
+          close <= 0
+        ) {
+          invalidCount++;
+          continue;
+        }
+
+        // Reject impossible OHLC combinations.
+        if (
+          high < low ||
+          high < Math.max(open, close) ||
+          low > Math.min(open, close)
+        ) {
+          invalidCount++;
+          continue;
+        }
+
+        parsed.push({
+          time,
+          open,
+          high,
+          low,
+          close
+        });
+      }
+
+      // Deduplicate by timestamp. If duplicates exist, keep the last one.
+      const byTime = new Map();
+
+      for (const candle of parsed) {
+        byTime.set(candle.time, candle);
+      }
+
+      const candles = Array.from(byTime.values())
+        .sort((a, b) => a.time - b.time);
+
+      return {
+        candles,
+        futureCount,
+        invalidCount
+      };
+    }
+
+    async function requestCandles(symbol, interval) {
+      const query = new URLSearchParams({
+        symbol: SYMBOL_MAP[symbol],
+        interval: INTERVAL_MAP[interval]
+      });
+
+      const url = `${API_BASE}/candles?${query.toString()}`;
+
+      if (requestController) {
+        requestController.abort();
+      }
+
+      requestController = new AbortController();
+
+      const timeout = setTimeout(() => {
+        requestController.abort();
+      }, 20000);
+
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          cache: "no-store",
+          signal: requestController.signal,
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        let payload;
+
+        try {
+          payload = await response.json();
+        } catch {
+          throw new Error(
+            "The market API returned an invalid JSON response."
+          );
+        }
+
+        if (!response.ok) {
+          const detail =
+            payload && (payload.error || payload.message);
+
+          throw new Error(
+            detail ||
+            `Market API returned HTTP ${response.status}.`
+          );
+        }
+
+        if (!payload || !Array.isArray(payload.candles)) {
+          throw new Error(
+            payload?.error ||
+            payload?.message ||
+            "The API did not return candle data."
+          );
+        }
+
+        const result = normaliseCandles(payload.candles);
+
+        if (result.futureCount > 0) {
+          console.warn(
+            "Rejected future candle timestamps:",
+            result.futureCount
+          );
+        }
+
+        if (result.invalidCount > 0) {
+          console.warn(
+            "Rejected invalid candles:",
+            result.invalidCount
+          );
+        }
+
+        if (result.candles.length < 30) {
+          if (
+            result.futureCount > 0 &&
+            result.candles.length < 30
+          ) {
+            throw new Error(
+              `Only ${result.candles.length} valid candles remain. ` +
+              `${result.futureCount} candle(s) had future timestamps. ` +
+              "Check the Cloudflare Worker timestamp conversion."
+            );
+          }
+
+          throw new Error(
+            `Only ${result.candles.length} valid candles were returned. ` +
+            "At least 30 are needed. Check the market API response."
+          );
+        }
+
+        return {
+          candles: result.candles,
+          source: payload.source || "Market API",
+          lastUpdated: payload.lastUpdated || null,
+          invalidCount: result.invalidCount,
+          futureCount: result.futureCount
+        };
+      } catch (error) {
+        if (error.name === "AbortError") {
+          throw new Error(
+            "The market API timed out after 20 seconds. Try again."
+          );
+        }
+
+        if (
+          error instanceof TypeError &&
+          /fetch/i.test(error.message)
+        ) {
+          throw new Error(
+            "Could not connect to the market API. Check the internet " +
+            "connection and Cloudflare Worker availability."
+          );
+        }
+
+        throw error;
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    function getAverage(values) {
+      if (!values.length) return 0;
+
+      return values.reduce((sum, value) => sum + value, 0) /
+        values.length;
+    }
+
+    function analyseMarket(symbol) {
+      const candles = candleData;
+
+      if (candles.length < 40) {
+        clearAnalysis(
+          "Not enough valid candles for the analysis."
+        );
+        return;
+      }
+
+      const latest = candles[candles.length - 1];
+      const previous = candles[candles.length - 2];
+
+      const earlier = candles.slice(-21, -1);
+
+      const previousHigh = Math.max(
+        ...earlier.map(candle => candle.high)
+      );
+
+      const previousLow = Math.min(
+        ...earlier.map(candle => candle.low)
+      );
+
+      const earlierClose = candles[candles.length - 21].close;
+      const recentCloses = candles.slice(-10).map(c => c.close);
+
+      const averageRecentClose = getAverage(recentCloses);
+
+      let bias = "NEUTRAL";
+      let biasColor = "yellow";
+
+      if (
+        latest.close > earlierClose &&
+        latest.close > averageRecentClose
+      ) {
+        bias = "BULLISH";
+        biasColor = "green";
+      } else if (
+        latest.close < earlierClose &&
+        latest.close < averageRecentClose
+      ) {
+        bias = "BEARISH";
+        biasColor = "red";
+      }
+
+      setMetric("bias", bias, biasColor);
+
+      setText(
+        "biasDescription",
+        `Latest close: ${formatPrice(latest.close, symbol)}. ` +
+        `Recent average: ${formatPrice(averageRecentClose, symbol)}.`
+      );
+
+      let structure = "NO BREAKOUT";
+      let structureColor = "yellow";
+      let structureDirection = "NONE";
+
+      if (latest.close > previousHigh) {
+        structure = "BULLISH BREAK";
+        structureColor = "green";
+        structureDirection = "BUY";
+      } else if (latest.close < previousLow) {
+        structure = "BEARISH BREAK";
+        structureColor = "red";
+        structureDirection = "SELL";
+      }
+
+      setMetric("bos", structure, structureColor);
+
+      setText(
+        "bosDescription",
+        `Reference high: ${formatPrice(previousHigh, symbol)}. ` +
+        `Reference low: ${formatPrice(previousLow, symbol)}.`
+      );
+
+      const lookback = candles.slice(-11, -1);
+
+      const recentHigh = Math.max(
+        ...lookback.map(candle => candle.high)
+      );
+
+      const recentLow = Math.min(
+        ...lookback.map(candle => candle.low)
+      );
+
+      let sweep = "NONE DETECTED";
+      let sweepColor = "yellow";
+
+      if (
+        latest.high > recentHigh &&
+        latest.close < recentHigh
+      ) {
+        sweep = "POSSIBLE HIGH SWEEP";
+        sweepColor = "red";
+      } else if (
+        latest.low < recentLow &&
+        latest.close > recentLow
+      ) {
+        sweep = "POSSIBLE LOW SWEEP";
+        sweepColor = "green";
+      }
+
+      setMetric("sweep", sweep, sweepColor);
+
+      setText(
+        "sweepDescription",
+        `Recent high: ${formatPrice(recentHigh, symbol)}. ` +
+        `Recent low: ${formatPrice(recentLow, symbol)}.`
+      );
+
+      setText("price", formatPrice(latest.close, symbol));
+
+      setText(
+        "candleTime",
+        "Candle time: " +
+        formatDateTime(new Date(latest.time * 1000))
+      );
+
+      setChecklist("checkData", "Valid candle data", true);
+
+      setChecklist(
+        "checkTrend",
+        `Market bias: ${bias}`,
+        bias !== "NEUTRAL"
+      );
+
+      setChecklist(
+        "checkStructure",
+        `Structure: ${structure}`,
+        structureDirection !== "NONE"
+      );
+
+      setChecklist(
+        "checkSweep",
+        `Liquidity: ${sweep}`,
+        sweep !== "NONE DETECTED"
+      );
+
+      // Only create a provisional setup when the latest close breaks
+      // the earlier range and agrees with the calculated bias.
+      const buySetup =
+        structureDirection === "BUY" &&
+        bias === "BULLISH";
+
+      const sellSetup =
+        structureDirection === "SELL" &&
+        bias === "BEARISH";
+
+      if (!buySetup && !sellSetup) {
+        clearTradeSetup(
+          "No qualifying breakout aligned with the calculated market " +
+          "bias. Wait for another setup instead of forcing a trade."
+        );
+
+        return;
+      }
+
+      const direction = buySetup ? "BUY" : "SELL";
+      const entryPrice = latest.close;
+
+      const candleRange = Math.max(
+        latest.high - latest.low,
+        Math.abs(latest.close - previous.close),
+        symbol === "XAUUSD" ? 0.1 : 0.0001
+      );
+
+      const stopDistance = candleRange * 1.2;
+
+      const stopLoss = buySetup
+        ? entryPrice - stopDistance
+        : entryPrice + stopDistance;
+
+      const takeProfit1 = buySetup
+        ? entryPrice + stopDistance * 1.5
+        : entryPrice - stopDistance * 1.5;
+
+      const takeProfit2 = buySetup
+        ? entryPrice + stopDistance * 3
+        : entryPrice - stopDistance * 3;
+
+      setText("signal", direction);
+      $("signal").style.color = buySetup
+        ? "var(--green)"
+        : "var(--red)";
+
+      setText("entry", formatPrice(entryPrice, symbol));
+      setText("sl", formatPrice(stopLoss, symbol));
+      setText("tp1", formatPrice(takeProfit1, symbol));
+      setText("tp2", formatPrice(takeProfit2, symbol));
+      setText("rr", "1:1.5 / 1:3");
+
+      setText(
+        "signalReason",
+        `${direction} candidate: the latest candle closed beyond ` +
+        `the previous range and agrees with the simplified market bias. ` +
+        "This is an experimental signal, not a confirmed trading edge."
+      );
+    }
+
+    async function loadScanner() {
+      if (requestInProgress) return;
+
+      requestInProgress = true;
+
+      const button = $("scanButton");
+      const originalLabel = "Scan Market";
+
+      button.disabled = true;
+      button.textContent = "Scanning...";
+
+      const symbol = $("symbol").value;
+      const timeframe = $("timeframe").value;
+
+      setText("chartTitle", SYMBOL_NAMES[symbol]);
+      setText(
+        "chartSubtitle",
+        `${TIMEFRAME_NAMES[timeframe]} candlestick chart`
+      );
+
+      setStatus("Connecting to market data...", "warning");
+
+      try {
+        if (!candleSeries) {
+          throw new Error(
+            "The chart is not ready. Refresh the page and try again."
+          );
+        }
+
+        const result = await requestCandles(symbol, timeframe);
+
+        candleData = result.candles;
+
+        candleSeries.setData(candleData);
+
+        chart.timeScale().fitContent();
+
+        analyseMarket(symbol);
+
+        lastSuccessfulUpdate = new Date();
+
+        setText(
+          "updatedAt",
+          "Last update: " + formatDateTime(lastSuccessfulUpdate)
+        );
+
+        setText(
+          "sourceBadge",
+          String(result.source).slice(0, 35)
+        );
+
+        let statusMessage =
+          `Connected · ${candleData.length} candles · ` +
+          `${SYMBOL_NAMES[symbol]}`;
+
+        if (result.futureCount > 0) {
+          statusMessage +=
+            ` · Rejected ${result.futureCount} future timestamp(s)`;
+        }
+
+        setStatus(statusMessage, "success");
+
+        console.log("PipSense scan complete", {
+          symbol,
+          timeframe,
+          candles: candleData.length,
+          source: result.source,
+          lastUpdated: result.lastUpdated,
+          futureCount: result.futureCount,
+          lastCandle: candleData[candleData.length - 1]
+        });
+
+      } catch (error) {
+        console.error("PipSense scanner error:", error);
+
+        setStatus(
+          error.message || "An unexpected scanning error occurred.",
+          "error"
+        );
+
+        clearAnalysis(
+          "The scanner could not complete its analysis. " +
+          "Resolve the market-data error and scan again."
+        );
+
+        setText(
+          "updatedAt",
+          lastSuccessfulUpdate
+            ? "Last successful update: " +
+              formatDateTime(lastSuccessfulUpdate)
+            : "Last update: failed"
+        );
+
+      } finally {
+        requestInProgress = false;
+        button.disabled = false;
+        button.textContent = originalLabel;
+      }
+    }
+
+    function restartAutoRefresh() {
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+      }
+
+      const seconds = Number($("refreshMode").value);
+
+      if (!seconds || seconds < 1) return;
+
+      refreshTimer = setInterval(() => {
+        if (
+          document.visibilityState === "visible" &&
+          !requestInProgress
+        ) {
+          loadScanner();
+        }
+      }, seconds * 1000);
+    }
+
+    $("scanButton").addEventListener("click", loadScanner);
+
+    $("symbol").addEventListener("change", () => {
+      clearAnalysis("Symbol changed. Scanning the selected market...");
       loadScanner();
-    }
-  }, 60000);
-}
-
-scanButton.addEventListener("click", loadScanner);
-
-document.getElementById("symbol").addEventListener("change", loadScanner);
-document.getElementById("timeframe").addEventListener("change", loadScanner);
-
-window.addEventListener("resize", () => {
-  if (chart) {
-    chart.applyOptions({
-      width: chartElement.clientWidth,
-      height: chartElement.clientHeight
     });
-  }
-});
 
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden && !requestInProgress) {
+    $("timeframe").addEventListener("change", () => {
+      clearAnalysis("Timeframe changed. Scanning the selected timeframe...");
+      loadScanner();
+    });
+
+    $("refreshMode").addEventListener(
+      "change",
+      restartAutoRefresh
+    );
+
+    window.addEventListener("resize", () => {
+      if (chart) {
+        chart.applyOptions({
+          width: $("chart").clientWidth,
+          height: $("chart").clientHeight
+        });
+      }
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (
+        document.visibilityState === "visible" &&
+        !requestInProgress
+      ) {
+        loadScanner();
+      }
+    });
+
+    // Start the scanner.
+    initialiseChart();
     loadScanner();
-  }
-});
-
-try {
-  initialiseChart();
-  loadScanner();
-  restartAutoRefresh();
-} catch (error) {
-  console.error("PipSense startup error:", error);
-  setStatus("STARTUP ERROR | " + error.message, "error");
-  scanButton.disabled = true;
-}
-</script>
-
+    restartAutoRefresh();
+  </script>
 </body>
 </html>
 ```
